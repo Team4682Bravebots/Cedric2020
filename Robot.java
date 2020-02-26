@@ -4,14 +4,30 @@
 /* must be accompanied by the FIRST BSD license file in the root directory of */
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
+/*
+.______   .______          ___   ____    ____  _______ .______     ______   .___________.    _______.
+|   _  \  |   _  \        /   \  \   \  /   / |   ____||   _  \   /  __  \  |           |   /       |
+|  |_)  | |  |_)  |      /  ^  \  \   \/   /  |  |__   |  |_)  | |  |  |  | `---|  |----`  |   (----`
+|   _  <  |      /      /  /_\  \  \      /   |   __|  |   _  <  |  |  |  |     |  |        \   \    
+|  |_)  | |  |\  \----./  _____  \  \    /    |  |____ |  |_)  | |  `--'  |     |  |    .----)   |   
+|______/  | _| `._____/__/     \__\  \__/     |_______||______/   \______/      |__|    |_______/    
+
+
+                                        The Team Strikes Back!
+                                                                                                     
+*/
 
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Compressor;
+
+import java.sql.Driver;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.SparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.wpilibj.Encoder;
@@ -31,6 +47,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class Robot extends TimedRobot {
 
+   
     // joystick constants \\
     private static final int kAButton = 1;
     private static final int kBButton = 2;
@@ -76,6 +93,14 @@ public class Robot extends TimedRobot {
     private static final int kDriveLeftSlavePort = 8;
     private static final int kDriveRightSlavePort = 9;
 
+    //Carousel motor
+    CANSparkMax _mcarousel = new CANSparkMax(2, MotorType.kBrushless);
+    Position p = new Position(_mcarousel);
+    
+    //IRSensor ir1 = new IRSensor(0);
+    //IRSensor ir2 = new IRSensor(1);
+    
+    
     // components \\
     private Joystick driver_;
     private Joystick coDriver_;
@@ -100,7 +125,7 @@ public class Robot extends TimedRobot {
         camera_ = new Cam(turret_);
         shooty_ = new Shooter(kShooterSparkPort1, kShooterSparkPort2);
         intake_ = new Intake(kIntakeSparkPort);
-        carousel_ = new Carousel(kCarouselSparkPort);
+        carousel_ = new Carousel(p);
         drive_ = new ArcadeDrive(kDriveLeftMasterPort, kDriveRightMasterPort, kDriveLeftSlavePort, kDriveRightSlavePort);
         c.setClosedLoopControl(true);
     }
@@ -166,7 +191,7 @@ public class Robot extends TimedRobot {
         
 
         if(coDriver_.getRawButtonPressed(kXButton)){
-            carousel_.turncarousel();
+            carousel_.spinOneSlot();
         }
 
 
@@ -186,6 +211,8 @@ public class Robot extends TimedRobot {
         if(coDriver_.getRawButtonPressed(kDPad_down)){
             Pnuematics_.closemouth();
         }
+
+        drive_.drive(-driver_.getRawAxis(kRightJoystickAxis_x), driver_.getRawAxis(kRightJoystickAxis_y), driver_.getRawAxis(kLeftJoystickAxis_x));
         
         
         
