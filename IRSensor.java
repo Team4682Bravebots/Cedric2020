@@ -12,6 +12,7 @@ public class IRSensor{
         ai = new DigitalInput(0);
        
     }
+    
         
     public Boolean getIRValue() {
         SmartDashboard.putBoolean("ai",ai.get() );

@@ -18,20 +18,24 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.GenericHID.*;
 
 public class Carousel
-{
+{ 
 
     private Position m_carousel;
     private int isPositionLoaded;
     private int k_BallsLoaded;
     private double k_rotationposition;
+    private IRSensor[] irsensors;
+    private int[] _ballslots;
     
 
 
-    public Carousel(Position c)
+    public Carousel(Position c, IRSensor[] ir)
     {
         m_carousel = c;
         m_carousel.initializePositionalPID();
         k_rotationposition = 4.7123;
+        
+
       
 
     }

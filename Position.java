@@ -76,6 +76,7 @@ public double getEncoderVal()
 public void runCarousel(double r)
  {
     activatePositionalLoop(r);
+    m_encoder.setPosition(0);
 
 }
 

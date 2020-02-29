@@ -47,7 +47,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class Robot extends TimedRobot {
 
-   
     // joystick constants \\
     private static final int kAButton = 1;
     private static final int kBButton = 2;
@@ -59,7 +58,7 @@ public class Robot extends TimedRobot {
     private static final int kSelectButton = 8;
     private static final int kLeftJoytstickButton = 9;
     private static final int kRightJoystickButton = 10;
-    
+
     private static final int kLeftJoystickAxis_x = 0;
     private static final int kLeftJoystickAxis_y = 1;
     private static final int kLeftTriggerAxis = 2;
@@ -81,26 +80,27 @@ public class Robot extends TimedRobot {
     private static final int kCoDriverPort = 1;
 
     // component ports \\
-    private static final int kTurretSparkPort = 5;
+    private static final int kTurretSparkPort = 1;
     private static final int kShooterSparkPort1 = 3;
-    private static final int kShooterSparkPort2 = 4;
-    Compressor c = new Compressor(0);
+    private static final int kShooterSparkPort2 = 2;
+    Compressor c;
     // TODO: Configure these
-    private static final int kIntakeSparkPort = 0;
-    private static final int kCarouselSparkPort = 1;
+    private static final int kIntakeSparkPort = 4;
+    private static final int kCarouselSparkPort = 5;
     private static final int kDriveLeftMasterPort = 6;
     private static final int kDriveRightMasterPort = 7;
     private static final int kDriveLeftSlavePort = 8;
     private static final int kDriveRightSlavePort = 9;
 
-    //Carousel motor
-    CANSparkMax _mcarousel = new CANSparkMax(2, MotorType.kBrushless);
+    private static final int pcmId_ = 10;
+
+    // Carousel motor
+    CANSparkMax _mcarousel = new CANSparkMax(kCarouselSparkPort, MotorType.kBrushless);
     Position p = new Position(_mcarousel);
-    
-    //IRSensor ir1 = new IRSensor(0);
-    //IRSensor ir2 = new IRSensor(1);
-    
-    
+
+    // IRSensor ir1 = new IRSensor(0);
+    // IRSensor ir2 = new IRSensor(1);
+
     // components \\
     private Joystick driver_;
     private Joystick coDriver_;
@@ -111,6 +111,7 @@ public class Robot extends TimedRobot {
     private ArcadeDrive drive_;
     private Carousel carousel_;
     private Pnuematics Pnuematics_;
+    private IRSensor[] irsensors_;
 
     /**
      *
@@ -119,15 +120,19 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotInit() {
+        c = new Compressor(pcmId_);
         driver_ = new Joystick(kDriverPort);
         coDriver_ = new Joystick(kCoDriverPort);
         turret_ = new Turret(kTurretSparkPort);
-        camera_ = new Cam(turret_);
         shooty_ = new Shooter(kShooterSparkPort1, kShooterSparkPort2);
+        camera_ = new Cam(turret_, shooty_);
         intake_ = new Intake(kIntakeSparkPort);
-        carousel_ = new Carousel(p);
-        drive_ = new ArcadeDrive(kDriveLeftMasterPort, kDriveRightMasterPort, kDriveLeftSlavePort, kDriveRightSlavePort);
+        carousel_ = new Carousel(p, irsensors_);
+        drive_ = new ArcadeDrive(kDriveLeftMasterPort, kDriveRightMasterPort, kDriveLeftSlavePort,
+                kDriveRightSlavePort);
+        Pnuematics_ = new Pnuematics(pcmId_);
         c.setClosedLoopControl(true);
+        c.start();
     }
 
     /**
@@ -146,6 +151,7 @@ public class Robot extends TimedRobot {
             camera_.debug();
             shooty_.debug();
         }
+
     }
 
     /**
@@ -161,6 +167,7 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void teleopPeriodic() {
+        // c.setClosedLoopControl(true);
         // DRIVER CODE \\
 
         // CO-DRIVER CODE \\
@@ -168,65 +175,51 @@ public class Robot extends TimedRobot {
         if (coDriver_.getRawButtonPressed(kBButton)) {
             camera_.startAiming();
         }
-
-        if(coDriver_.getRawButtonPressed(kRightTopButton)){
+        // TODO:change back to co driver
+        if (coDriver_.getRawButtonPressed(kRightTopButton)) {
             shooty_.shoot();
         }
 
-
-        if(coDriver_.getRawButtonPressed(kLeftTopButton)){
+        if (coDriver_.getRawButtonPressed(kLeftTopButton)) {
             shooty_.stop();
         }
 
-        if(coDriver_.getRawButtonPressed(kStartButton)){
+        if (coDriver_.getRawButtonPressed(kStartButton)) {
             intake_.eatit();
 
         }
 
-        if(coDriver_.getRawButtonPressed(kSelectButton)){
+        if (coDriver_.getRawButtonPressed(kSelectButton)) {
             Pnuematics_.senddeployout();
 
         }
-    
-        
 
-        if(coDriver_.getRawButtonPressed(kXButton)){
+        if (coDriver_.getRawButtonPressed(kXButton)) {
             carousel_.spinOneSlot();
         }
 
-
-
-
-        if (coDriver_.getRawButtonPressed(kYButton)){
+        if (coDriver_.getRawButtonPressed(kYButton)) {
             Pnuematics_.pushballout();
         }
 
-        if(coDriver_.getRawButtonPressed(kAButton)){
+        if (coDriver_.getRawButtonPressed(kAButton)) {
             Pnuematics_.bringballin();
         }
-        
-        if(coDriver_.getRawButtonPressed(kDPad_up)){
+
+        if (coDriver_.getRawButtonPressed(kDPad_up)) {
             Pnuematics_.bringballin2();
         }
-        if(coDriver_.getRawButtonPressed(kDPad_down)){
+        if (coDriver_.getRawButtonPressed(kDPad_down)) {
             Pnuematics_.closemouth();
         }
 
-        drive_.drive(-driver_.getRawAxis(kRightJoystickAxis_x), driver_.getRawAxis(kRightJoystickAxis_y), driver_.getRawAxis(kLeftJoystickAxis_x));
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+        drive_.drive(-driver_.getRawAxis(kRightJoystickAxis_x), driver_.getRawAxis(kRightJoystickAxis_y),
+                driver_.getRawAxis(kLeftJoystickAxis_x));
+
         camera_.update();
     }
-} //button to stop shooting 
-//button to aim
-//button to deploy intake button to spin intake
-//button carousel 
-//pop ball
+} // button to stop shooting
+  // button to aim
+  // button to deploy intake button to spin intake
+  // button carousel
+  // pop ball

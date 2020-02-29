@@ -11,45 +11,43 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Pnuematics {
 
-    private DoubleSolenoid _sol_deploy;
-    private DoubleSolenoid _sol_deploy2;
-    private DoubleSolenoid _sol_deploy3;
+    private DoubleSolenoid intake_;
+    private DoubleSolenoid popper_;
+    private DoubleSolenoid fangs_;
     private boolean ballpusherout;
     private boolean intaker;
     private boolean feeder;
-    private static int kSolChannel_deploy = 2;
-    private static int kSolChannel_deploy2 = 3;
-    private static int kSolChannel_deploy3= 4;
-    private static int kSolChannel_deploy4 =5;
-    private static int kSolChannel_deploy5 =6;
-    private static int kSolChannel_deploy6 =7;
+    private static int kSolChannel_deploy = 2; // deploy intake
+    private static int kSolChannel_deploy2 = 3; // deploy intake
+    private static int kSolChannel_deploy3= 4; // popper
+    private static int kSolChannel_deploy4 =5; // popper
+    private static int kSolChannel_deploy5 =6; // fangy bois
+    private static int kSolChannel_deploy6 =7; // fangy bois
     
-    public Pnuematics() {
-        _sol_deploy = new DoubleSolenoid(kSolChannel_deploy, kSolChannel_deploy2);
-        _sol_deploy2 = new DoubleSolenoid(kSolChannel_deploy3, kSolChannel_deploy4);
-        _sol_deploy3 = new DoubleSolenoid(kSolChannel_deploy5, kSolChannel_deploy6);
+    public Pnuematics(int pcmId_) {
+        intake_ = new DoubleSolenoid(pcmId_, kSolChannel_deploy, kSolChannel_deploy2);
+        popper_ = new DoubleSolenoid(pcmId_, kSolChannel_deploy3, kSolChannel_deploy4);
+        fangs_ = new DoubleSolenoid(pcmId_, kSolChannel_deploy5, kSolChannel_deploy6);
         intaker = false;
     }
 
-
-
     public void pushballout() {
-        _sol_deploy.set(Value.kForward);
+        popper_.set(Value.kForward);
         ballpusherout = true;
     }
 
     public void bringballin() {
-        _sol_deploy.set(Value.kReverse);
+        intake_.set(Value.kReverse);
         ballpusherout = false;
     }
 
     public void bringballin2(){
-        _sol_deploy3.set(Value.kReverse);
+        fangs_.set(Value.kReverse);
         feeder=true;
     }
 
     public void closemouth(){
-        _sol_deploy3.set(Value.kReverse);
+        fangs_.set(Value.kReverse);
         feeder = false;
         
     }
@@ -57,7 +55,7 @@ public class Pnuematics {
  
 
     public void senddeployout(){
-        _sol_deploy2.set(Value.kForward);
+        popper_.set(Value.kForward);
         intaker = true;
     }
 
